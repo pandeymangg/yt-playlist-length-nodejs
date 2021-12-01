@@ -64,12 +64,13 @@ async function getResponse() {
     }
 
     let [minutes, seconds] = [
-      parseInt(totalSeconds / 60),
-      parseInt(totalSeconds % 60),
+      Math.floor(totalSeconds / 60),
+      Math.floor(totalSeconds % 60),
     ];
 
-    let hours = parseInt(minutes / 60);
-    minutes = parseInt(minutes % 60);
+    let hours = Math.floor(minutes / 60);
+    minutes = Math.floor(minutes % 60);
+
     console.log(hours, minutes, seconds);
   } catch (e) {
     console.log(e.message);

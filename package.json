@@ -4,14 +4,19 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "watch": "tsc index.ts -w",
     "dev": "nodemon index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/node": "^16.11.11",
     "dotenv": "^10.0.0",
-    "googleapis": "^65.0.0",
+    "googleapis": "^91.0.0",
     "nodemon": "^2.0.6"
+  },
+  "devDependencies": {
+    "typescript": "^4.5.2"
   }
 }
