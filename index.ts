@@ -1,61 +1,65 @@
-const { google } = require("googleapis");
-const youtube = google.youtube("v3");
-const dotenv = require("dotenv");
-dotenv.config({ path: "./.env" });
+import { google, youtube_v3 } from "googleapis";
+import { config } from "dotenv";
+
+const youtube: youtube_v3.Youtube = google.youtube("v3");
+config({ path: "./.env" });
 
 const api_key = process.env.API_KEY;
-const playlistId = "some_playlist_id";
+const playlistId = "PLz3-lGEW1dbKWdGKzEqwmrlZaQa45HLBz";
 
-let videoIds = [];
+let videoIds: string[] = [];
 let hourRegex = /(\d+)H/g;
 let minuteRegex = /(\d+)M/g;
 let secondRegex = /(\d+)S/g;
 
-let nextPageToken = null;
+let nextPageToken: any = null;
 let durationSeconds = 0;
 let totalSeconds = 0;
 
 async function getResponse() {
   try {
     while (true) {
-      const plResponse = await youtube.playlistItems.list({
+      const plResponse: any = await youtube.playlistItems.list({
         key: api_key,
-        part: "contentDetails, snippet",
+        part: ["contentDetails, snippet"],
         playlistId,
         maxResults: 50,
         pageToken: nextPageToken,
       });
 
       videoIds = [];
-      plResponse.data.items.forEach((item) =>
-        videoIds.push(item.contentDetails.videoId)
+      plResponse?.data?.items.forEach((item: youtube_v3.Schema$PlaylistItem) =>
+        videoIds.push(item?.contentDetails?.videoId!)
       );
 
-      const vidResponse = await youtube.videos.list({
+      const vidResponseParams: youtube_v3.Params$Resource$Videos$List = {
         key: api_key,
-        part: "contentDetails",
-        id: videoIds.join(","),
-      });
+        part: ["contentDetails"],
+        id: videoIds,
+      };
+      const vidResponse: any = await youtube.videos.list(vidResponseParams);
 
-      vidResponse.data.items.forEach((item, index) => {
-        const hour =
-          item.contentDetails.duration
-            ?.match(hourRegex)?.[0]
-            ?.replace("H", "") || 0;
-        const min =
-          item.contentDetails.duration
-            ?.match(minuteRegex)?.[0]
-            ?.replace("M", "") || 0;
-        const sec =
-          item.contentDetails.duration
-            ?.match(secondRegex)?.[0]
-            ?.replace("S", "") || 0;
+      vidResponse.data.items.forEach(
+        (item: youtube_v3.Schema$Video, index: number) => {
+          const hour =
+            item?.contentDetails?.duration
+              ?.match(hourRegex)?.[0]
+              ?.replace("H", "") || "0";
+          const min =
+            item?.contentDetails?.duration
+              ?.match(minuteRegex)?.[0]
+              ?.replace("M", "") || "0";
+          const sec =
+            item?.contentDetails?.duration
+              ?.match(secondRegex)?.[0]
+              ?.replace("S", "") || "0";
 
-        durationSeconds =
-          parseInt(hour) * 3600 + parseInt(min) * 60 + parseInt(sec);
+          durationSeconds =
+            parseInt(hour) * 3600 + parseInt(min) * 60 + parseInt(sec);
 
-        totalSeconds += durationSeconds;
-      });
+          totalSeconds += durationSeconds;
+        }
+      );
 
       nextPageToken = plResponse.data.nextPageToken;
       if (!nextPageToken) {
@@ -72,7 +76,7 @@ async function getResponse() {
     minutes = Math.floor(minutes % 60);
 
     console.log(hours, minutes, seconds);
-  } catch (e) {
+  } catch (e: any) {
     console.log(e.message);
   }
 }
